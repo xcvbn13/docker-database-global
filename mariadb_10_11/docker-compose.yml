@@ -1,0 +1,27 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: mariadb_10_11
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${MARIADB_PORT:-3306}:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mariadb_10_11_network
+
+volumes:
+  mariadb_data:
+
+networks:
+  mariadb_10_11_network:
+    name: mariadb_10_11_network
+    driver: bridge
